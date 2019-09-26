@@ -12,6 +12,9 @@ metadata {
 
     preferences {
         input name: "autoOff", type: "bool", title: "Auto Off Timing", defaultValue: true
+        input name: "autoOffTimeMs", type: "number", title: "Auto Off Time (ms)", defaultValue: 50, required: true
+        input name: "tick", type: "bool", title: "Send Periodic Tick", defaultValue: false
+        input name: "tickTimeMs", type: "number", title: "Time of Tick (ms)", defaultValue: 1000, required: true
         //standard logging options
         input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: false
         input name: "txtEnable", type: "bool", title: "Enable descriptionText logging", defaultValue: false
@@ -25,19 +28,37 @@ def logsOff(){
 
 //capability and device methods
 def off() {
-   state.endTime = new Date().getTime()
+   unschedule()
+   state.endTime = now()
    state.latency = state.endTime - state.startTime
-   if (txtEnable) log.info "${device.displayName} ${name} On to off time took: ${state.latency}"
+   if (logEnable) log.info "${device.displayName} ${name} On to off time took: ${state.latency}"
    def name = "pressure"
-   def unit = "kPa"
-   def descriptionText = "${device.displayName} ${name} is ${value}${unit}"
-   sendEvent(name: "pressure",value: state.latency, descriptionText: descriptionText,unit: unit)
+   def unit = "ms"
+   def descriptionText = "${device.displayName} ${name} is ${state.latency} ms"
+   sendEvent(name: "pressure",value: state.latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
    sendEvent(name: "switch", value: "off", isStateChange: true)
 }
 
 def on() {
     sendEvent(name: "switch", value: "on", isStateChange: true)
-    state.startTime = new Date().getTime()
-    if (autoOff) runInMillis(50, off)
+    state.startTime = now()
+    if (autoOff) runInMillis(autoOffTimeMs ?: 50, off)
+    if (tick) {
+        def date = new Date()
+        for (def offset = tickTimeMs; offset < autoOffTimeMs; offset += tickTimeMs) {
+            date.setTime(state.startTime + offset)
+            schedule(date, tick, [overwrite: false])
+        }
+    }
+}
+
+def tick() {
+   def time = now()
+   def latency = time - state.startTime
+   if (logEnable) log.info "${device.displayName} ${name} Tick at: ${latency}"
+   def name = "pressure"
+   def unit = "ms"
+   def descriptionText = "${device.displayName} ${name} Tick at ${latency} ms"
+   sendEvent(name: "pressure",value: state.latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
 }
 
