@@ -43,7 +43,7 @@ def on() {
     unschedule()
     sendEvent(name: "switch", value: "on", isStateChange: true)
     state.startTime = now()
-    if (autoOff) runInMillis(autoOffTimeMs ?: 50, off)
+    if (autoOff) runInMillis(autoOffTimeMs, off)
     if (tick) {
         def date = new Date()
         for (def offset = tickTimeMs; offset < autoOffTimeMs; offset += tickTimeMs) {
