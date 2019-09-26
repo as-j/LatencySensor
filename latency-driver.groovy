@@ -28,18 +28,19 @@ def logsOff(){
 
 //capability and device methods
 def off() {
-   unschedule()
-   state.endTime = now()
-   state.latency = state.endTime - state.startTime
-   if (logEnable) log.info "${device.displayName} On to off time took: ${state.latency}"
-   def name = "pressure"
-   def unit = "ms"
-   def descriptionText = "${device.displayName} is ${state.latency} ms"
-   sendEvent(name: "pressure",value: state.latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
-   sendEvent(name: "switch", value: "off", isStateChange: true)
+    unschedule()
+    state.endTime = now()
+    state.latency = state.endTime - state.startTime
+    if (logEnable) log.info "${device.displayName} On to off time took: ${state.latency}"
+    def name = "pressure"
+    def unit = "ms"
+    def descriptionText = "${device.displayName} is ${state.latency} ms"
+    sendEvent(name: "pressure",value: state.latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
+    sendEvent(name: "switch", value: "off", isStateChange: true)
 }
 
 def on() {
+    unschedule()
     sendEvent(name: "switch", value: "on", isStateChange: true)
     state.startTime = now()
     if (autoOff) runInMillis(autoOffTimeMs ?: 50, off)
@@ -53,12 +54,11 @@ def on() {
 }
 
 def tick() {
-   def time = now()
-   def latency = time - state.startTime
-   if (logEnable) log.info "${device.displayName} Tick at: ${latency}"
-   def name = "pressure"
-   def unit = "ms"
-   def descriptionText = "${device.displayName} Tick at ${latency} ms"
-   sendEvent(name: "pressure",value: state.latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
+    def latency = now() - state.startTime
+    if (logEnable) log.info "${device.displayName} Tick at: ${latency}"
+    def name = "pressure"
+    def unit = "ms"
+    def descriptionText = "${device.displayName} Tick at ${latency} ms"
+    sendEvent(name: "pressure",value: latency, descriptionText: txtEnable ? descriptionText : "",unit: unit)
 }
 
