@@ -28,9 +28,13 @@ def logsOff(){
 
 //capability and device methods
 def off() {
-    unschedule()
+    if (device.currentValue("switch") == "off") return
+
     state.endTime = now()
     state.latency = state.endTime - state.startTime
+
+    unschedule()
+
     if (logEnable) log.info "${device.displayName} On to off time took: ${state.latency}"
     def name = "pressure"
     def unit = "ms"
@@ -54,6 +58,8 @@ def on() {
 }
 
 def tick() {
+    if (device.currentValue("switch") == "off") return
+
     def latency = now() - state.startTime
     if (logEnable) log.info "${device.displayName} Tick at: ${latency}"
     def name = "pressure"
