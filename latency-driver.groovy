@@ -38,17 +38,20 @@ def stop() {
               descriptionText: "${device.displayName} timeElapsed: ${state.timeElapsed} ms",
               unit: "ms")
     sendEvent(name: "sessionStatus", value: "stop")
+    sendEvent(name: "switch", value: "off")
 }
 
 def start() {
     if (ignoreStart && (device.currentValue("sessionStatus") == "running")) return
     sendEvent(name: "sessionStatus", value: "running")
+    sendEvent(name: "switch", value: "on")
     state.startTime = now()
     if (autoStop) runInMillis(autoStopTimeMs, stop)
 }
 
 def cancel() {
     sendEvent(name: "sessionStatus", value: "cancel")
+    sendEvent(name: "session", value: "off")
 }
 
 def pause() {
