@@ -9,6 +9,7 @@ definition(
     preferences {
         page(name: "mainPage", title: "Settings Page", install: true, uninstall: true) {
             section() {
+                label title: "App Name", defaultValue: app.label, required: true
                 input "scheduleString", "text", title: "Host", defaultValue: "0 6,16,26,36,46,56 * * * ?", required: true
                 input "timedSession", "capability.timedSession", title: "Timed Session", multiple: true, required: false
             }
