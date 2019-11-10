@@ -65,7 +65,7 @@ def start() {
 
 def cancel() {
     sendEvent(name: "sessionStatus", value: "cancel")
-    sendEvent(name: "session", value: "off")
+    sendEvent(name: "switch", value: "off")
 }
 
 def pause() {
