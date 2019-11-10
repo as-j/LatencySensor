@@ -92,11 +92,16 @@ def updated() {
  **/
 def sessionRunning(evt) {
     settings.timedSession.stop()
-    if (logEnable) log.debug "sessionRunning(): $evt.displayName($evt.name) $evt.value"
+    if (logEnable) log.debug "handleEvent(): $evt.displayName($evt.name) $evt.value"
 }
 
 def trigger() {
     settings.timedSession.start()
+    runIn(5, forceStop)
+}
+
+def forceStop() {
+    settings.timedSession.stop()
 }
 
 
